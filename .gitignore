@@ -1,0 +1,15 @@
+node_modules/
+.expo/
+dist/
+*.tsbuildinfo
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+.env
+.env.local
+.env.development
+convex/_generated/
