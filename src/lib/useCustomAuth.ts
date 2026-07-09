@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useSyncExternalStore } from "react";
-import { useAction } from "convex/react";
+import { getConvexClient } from "@/lib/convexClient";
 import { api } from "@convex/_generated/api";
 import {
   getAccessSnapshot,
   subscribeAccess,
   getRefreshSnapshot,
   subscribeRefresh,
-  init,
+  ensureInit,
   setAccessToken,
   clear,
 } from "@/lib/authState";
@@ -14,28 +14,31 @@ import {
 export function useCustomAuth() {
   const accessToken = useSyncExternalStore(subscribeAccess, getAccessSnapshot);
   const refreshToken = useSyncExternalStore(subscribeRefresh, getRefreshSnapshot);
-  const refreshAccess = useAction(api.auth.refreshAccess);
 
   useEffect(() => {
-    init();
+    ensureInit();
   }, []);
 
-  const fetchAccessToken = useCallback(
-    async (args?: { forceRefreshToken?: boolean }) => {
-      if (accessToken && !args?.forceRefreshToken) return accessToken;
-      if (!refreshToken) return null;
+  const fetchAccessToken = useCallback(async (args?: { forceRefreshToken?: boolean }) => {
+    await ensureInit();
 
-      try {
-        const result = await refreshAccess({ refreshToken });
-        setAccessToken(result.accessToken);
-        return result.accessToken;
-      } catch {
-        await clear();
-        return null;
-      }
-    },
-    [accessToken, refreshToken, refreshAccess],
-  );
+    const currentAccess = getAccessSnapshot();
+    const currentRefresh = getRefreshSnapshot();
+
+    if (currentAccess && !args?.forceRefreshToken) return currentAccess;
+    if (!currentRefresh) return null;
+
+    try {
+      const result = await getConvexClient().action(api.auth.refreshAccess, {
+        refreshToken: currentRefresh,
+      });
+      setAccessToken(result.accessToken);
+      return result.accessToken;
+    } catch {
+      await clear();
+      return null;
+    }
+  }, []);
 
   return {
     isLoading: refreshToken === undefined,

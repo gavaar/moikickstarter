@@ -1,15 +1,15 @@
 import "@/global.css";
 import { Stack } from "expo-router";
-import { ConvexProviderWithAuth, ConvexReactClient } from "convex/react";
+import { ConvexProviderWithAuth } from "convex/react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useCustomAuth } from "@/lib/useCustomAuth";
-
-const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!);
+import { getConvexClient } from "@/lib/convexClient";
 
 export default function RootLayout() {
+  const convexClient = getConvexClient();
   return (
     <ErrorBoundary>
-      <ConvexProviderWithAuth client={convex} useAuth={useCustomAuth}>
+      <ConvexProviderWithAuth client={convexClient} useAuth={useCustomAuth}>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="login" />

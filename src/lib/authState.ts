@@ -35,7 +35,16 @@ function notifyAll() {
   refreshListeners.forEach((l) => l());
 }
 
-export async function init() {
+let initPromise: Promise<void> | null = null;
+
+export function ensureInit(): Promise<void> {
+  if (!initPromise) {
+    initPromise = init();
+  }
+  return initPromise;
+}
+
+async function init() {
   refreshToken = (await getRefreshToken()) ?? null;
   accessToken = undefined;
   notifyAll();
