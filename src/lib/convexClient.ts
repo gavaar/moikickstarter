@@ -1,5 +1,6 @@
 import { ConvexReactClient } from "convex/react";
 
+// Singleton Convex client — create once, reuse everywhere
 let _client: ConvexReactClient | null = null;
 
 export function getConvexClient(): ConvexReactClient {

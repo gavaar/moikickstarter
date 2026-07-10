@@ -14,6 +14,11 @@ export const getUserByUsername = query({
 export const insertUser = mutation({
   args: { username: v.string(), email: v.string(), password: v.string() },
   handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("users")
+      .withIndex("by_username", (q) => q.eq("username", args.username))
+      .unique();
+    if (existing) throw new Error("Account already exists");
     return await ctx.db.insert("users", args);
   },
 });

@@ -1,7 +1,7 @@
 import { useAction } from "convex/react";
 import { api } from "@convex/_generated/api";
 import { save, clear, getRefreshTokenSync } from "./authState";
-import { toUserFriendly } from "./errors";
+import { toUserFriendly } from "@/lib/errors";
 
 export function useAuth() {
   const signInAction = useAction(api.auth.signIn);

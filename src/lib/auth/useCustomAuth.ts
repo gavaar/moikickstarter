@@ -9,7 +9,7 @@ import {
   ensureInit,
   setAccessToken,
   clear,
-} from "@/lib/authState";
+} from "./authState";
 
 export function useCustomAuth() {
   const accessToken = useSyncExternalStore(subscribeAccess, getAccessSnapshot);

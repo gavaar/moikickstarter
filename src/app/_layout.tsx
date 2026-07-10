@@ -2,7 +2,7 @@ import "@/global.css";
 import { Stack } from "expo-router";
 import { ConvexProviderWithAuth } from "convex/react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { useCustomAuth } from "@/lib/useCustomAuth";
+import { useCustomAuth } from "@/lib/auth";
 import { getConvexClient } from "@/lib/convexClient";
 
 export default function RootLayout() {

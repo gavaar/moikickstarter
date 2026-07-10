@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { ScrollView, Text, View } from "react-native";
-import { useKeyboardHeight } from "@/lib/useKeyboardHeight";
+import { useKeyboardHeight } from "@/lib/hooks";
 
 type Props = {
   title: string;

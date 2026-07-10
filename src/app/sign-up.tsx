@@ -1,9 +1,12 @@
 import { Text, View } from "react-native";
+import { useQuery } from "convex/react";
+import { api } from "@convex/_generated/api";
 import { Button } from "@/components/Button";
 import { InputText } from "@/components/InputText";
 import { useAuth } from "@/lib/auth";
-import { useRedirectOnAuth } from "@/lib/useRedirectOnAuth";
-import { useForm } from "@/lib/useForm";
+import { useRedirectOnAuth } from "@/lib/auth";
+import { useForm } from "@/lib/forms";
+import { useDebounce } from "@/lib/hooks";
 import { AuthScreenLayout } from "@/components/AuthScreenLayout";
 import { Link } from "expo-router";
 import { useState } from "react";
@@ -39,6 +42,46 @@ export default function SignUp() {
     },
   });
 
+  const debouncedUsername = useDebounce(values.username, 400);
+
+  const usernameToCheck =
+    debouncedUsername.length >= 1 && !loading ? debouncedUsername : undefined;
+
+  const existingUser = useQuery(
+    api.accounts.getUserByUsername,
+    usernameToCheck ? { username: usernameToCheck } : "skip",
+  );
+
+  let usernameStatus: "checking" | "available" | "unavailable" | undefined;
+  if (usernameToCheck) {
+    if (existingUser === undefined) {
+      usernameStatus = "checking";
+    } else if (existingUser !== null) {
+      usernameStatus = "unavailable";
+    } else {
+      usernameStatus = "available";
+    }
+  }
+
+  const showAsyncError =
+    usernameStatus === "unavailable" && values.username === debouncedUsername;
+  const asyncUsernameError = showAsyncError
+    ? "Username is already taken"
+    : undefined;
+  const usernameError = errors.username || asyncUsernameError;
+
+  const hasEmptyFields =
+    !values.username ||
+    !values.email ||
+    !values.password ||
+    !values.repeatPassword;
+  const { form: _formError, ...fieldErrors } = errors;
+  const hasClientErrors = Object.keys(fieldErrors).length > 0;
+  const isUsernameBlocked =
+    usernameStatus === "checking" || usernameStatus === "unavailable";
+  const canSubmit =
+    !hasEmptyFields && !hasClientErrors && !isUsernameBlocked && !loading;
+
   return (
     <AuthScreenLayout
       title="Create Account"
@@ -61,7 +104,8 @@ export default function SignUp() {
         onChangeText={(v) => setField("username", v)}
         autoCapitalize="none"
         autoCorrect={false}
-        error={errors.username}
+        error={usernameError}
+        status={values.username ? usernameStatus : undefined}
       />
       <InputText
         label="Email"
@@ -101,7 +145,12 @@ export default function SignUp() {
         <Text className="text-sm text-error">{errors.form}</Text>
       ) : null}
 
-      <Button title="Create Account" loading={loading} onPress={handleSubmit} />
+      <Button
+        title="Create Account"
+        loading={loading}
+        disabled={!canSubmit}
+        onPress={handleSubmit}
+      />
     </AuthScreenLayout>
   );
 }

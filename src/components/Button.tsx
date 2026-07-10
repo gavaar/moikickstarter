@@ -4,7 +4,7 @@ import {
   TouchableOpacity,
   type TouchableOpacityProps,
 } from "react-native";
-import { cn } from "@/lib/cn";
+import { cn, colors } from "@/lib/styles";
 
 type Props = TouchableOpacityProps & {
   title: string;
@@ -38,7 +38,7 @@ export function Button({
       {...props}
     >
       {loading ? (
-        <ActivityIndicator color="#FFFFFF" />
+        <ActivityIndicator color={colors.background} />
       ) : (
         <Text className="text-white font-semibold text-base">{title}</Text>
       )}

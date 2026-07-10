@@ -2,8 +2,8 @@ import { Text, View } from "react-native";
 import { Button } from "@/components/Button";
 import { InputText } from "@/components/InputText";
 import { useAuth } from "@/lib/auth";
-import { useRedirectOnAuth } from "@/lib/useRedirectOnAuth";
-import { useForm } from "@/lib/useForm";
+import { useRedirectOnAuth } from "@/lib/auth";
+import { useForm } from "@/lib/forms";
 import { AuthScreenLayout } from "@/components/AuthScreenLayout";
 import { Link } from "expo-router";
 import { useState } from "react";
@@ -62,7 +62,12 @@ export default function Login() {
 
       {errors.form ? <Text className="text-sm text-error">{errors.form}</Text> : null}
 
-      <Button title="Sign In" loading={loading} onPress={handleSubmit} />
+      <Button
+        title="Sign In"
+        loading={loading}
+        disabled={!values.username || !values.password}
+        onPress={handleSubmit}
+      />
     </AuthScreenLayout>
   );
 }

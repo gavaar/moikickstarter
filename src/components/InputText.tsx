@@ -1,12 +1,13 @@
 import { useState } from "react";
 import {
+  ActivityIndicator,
   Pressable,
   Text,
   TextInput,
   View,
   type TextInputProps,
 } from "react-native";
-import { cn } from "@/lib/cn";
+import { cn, colors } from "@/lib/styles";
 import { Icon } from "@/components/Icon";
 
 type Props = TextInputProps & {
@@ -14,6 +15,7 @@ type Props = TextInputProps & {
   error?: string;
   endIcon?: "eye" | "eye-off";
   onEndIconPress?: () => void;
+  status?: "checking" | "available" | "unavailable";
 };
 
 const BORDER_STYLES = {
@@ -22,8 +24,9 @@ const BORDER_STYLES = {
   default: "border-[#D1D5DB]",
 };
 
-export function InputText({ label, error, className, endIcon, onEndIconPress, ...props }: Props) {
+export function InputText({ label, error, className, endIcon, onEndIconPress, status, ...props }: Props) {
   const [focused, setFocused] = useState(false);
+  const hasTrailing = !!(status || endIcon);
 
   return (
     <View className="gap-1">
@@ -32,7 +35,7 @@ export function InputText({ label, error, className, endIcon, onEndIconPress, ..
         <TextInput
           className={cn(
             "rounded-lg border bg-white px-3 py-2.5 text-base text-text",
-            endIcon && "pr-10",
+            hasTrailing && "pr-10",
             focused ? BORDER_STYLES.focused : error ? BORDER_STYLES.error : BORDER_STYLES.default,
             className,
           )}
@@ -41,13 +44,21 @@ export function InputText({ label, error, className, endIcon, onEndIconPress, ..
           onBlur={() => setFocused(false)}
           {...props}
         />
-        {endIcon ? (
-          <Pressable
-            onPress={onEndIconPress}
-            className="absolute right-3 top-0 bottom-0 justify-center"
-          >
-            <Icon name={endIcon} size={20} color="#6B7280" />
-          </Pressable>
+        {hasTrailing ? (
+          <View className="absolute right-3 top-0 bottom-0 flex-row items-center gap-1">
+            {status === "checking" ? (
+              <ActivityIndicator size="small" color={colors.secondary} />
+            ) : status === "available" ? (
+              <Icon name="check-circle" size={20} color={colors.success} />
+            ) : status === "unavailable" ? (
+              <Icon name="x-circle" size={20} color={colors.danger} />
+            ) : null}
+            {endIcon ? (
+              <Pressable onPress={onEndIconPress} hitSlop={8}>
+                <Icon name={endIcon} size={20} color={colors.secondary} />
+              </Pressable>
+            ) : null}
+          </View>
         ) : null}
       </View>
       {error ? (
